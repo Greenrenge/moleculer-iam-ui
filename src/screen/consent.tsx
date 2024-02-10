@@ -1,20 +1,21 @@
-import React from "react";
-import { useAppState, useWithLoading, useNavigation, useAppI18N } from "../hook";
-import { Text, Persona, ScreenLayout } from "../component";
+import React from "react"
+import { useAppState, useWithLoading, useNavigation, useAppI18N } from "../hook"
+import { Text, Persona, ScreenLayout } from "../component"
 
 export const ConsentScreen: React.FunctionComponent = () => {
   // states
-  const { loading, withLoading, errors, setErrors } = useWithLoading();
-  const { nav } = useNavigation();
-  const [state, dispatch] = useAppState();
-  const { formatMessage: f, locale } = useAppI18N();
+  const { loading, withLoading, errors, setErrors } = useWithLoading()
+  const { nav } = useNavigation()
+  const [state, dispatch] = useAppState()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { formatMessage: f, locale } = useAppI18N()
 
   // handlers
   const [handleAccept, handleAcceptLoading] = withLoading(() => {
     return dispatch("consent.accept")
       .then(() => setErrors({}))
-      .catch((err: any) => setErrors(err));
-  });
+      .catch((err: any) => setErrors(err))
+  })
 
   // const handleReject = withLoading(() => {
   //   setErrors({});
@@ -25,25 +26,29 @@ export const ConsentScreen: React.FunctionComponent = () => {
   const [handleChangeAccount, handleChangeAccountLoading] = withLoading(() => {
     // return request("consent.change_account")
     //   .catch((err: any) => setErrors(err));
-    nav.navigate("login.index");
-    setErrors({});
-  });
+    nav.navigate("login.index")
+    setErrors({})
+  })
 
-  const user = state.user!;
-  const client = state.client!;
-  const scopes = state.interaction!.prompt.details.scopes as { new: string[], rejected: string[], accepted: string[] };
+  const user = state.user!
+  const client = state.client!
+  const scopes = state.interaction!.prompt.details.scopes as {
+    new: string[]
+    rejected: string[]
+    accepted: string[]
+  }
 
   // render
   return (
     <ScreenLayout
       title={client.client_name}
-      subtitle={f({id: "consent.consentRequired"})}
+      subtitle={f({ id: "consent.consentRequired" })}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: f({id: "button.continue"}),
+          children: f({ id: "button.continue" }),
           onPress: handleAccept,
           loading: handleAcceptLoading,
           tabIndex: 1,
@@ -58,13 +63,13 @@ export const ConsentScreen: React.FunctionComponent = () => {
           size: "medium",
           group: [
             {
-              children: f({id: "consent.privacyPolicy"}),
+              children: f({ id: "consent.privacyPolicy" }),
               onPress: () => window.open(client.policy_uri, "_blank"),
               disabled: !client.policy_uri,
               tabIndex: 4,
             },
             {
-              children: f({id: "consent.termsOfService"}),
+              children: f({ id: "consent.termsOfService" }),
               onPress: () => window.open(client.tos_uri, "_blank"),
               disabled: !client.tos_uri,
               tabIndex: 5,
@@ -72,32 +77,42 @@ export const ConsentScreen: React.FunctionComponent = () => {
           ],
         },
         {
-          separator: f({id: "separator.or"}),
+          separator: f({ id: "separator.or" }),
         },
         {
           appearance: "ghost",
           size: "small",
-          children: f({id: "consent.changeAccount"}),
+          children: f({ id: "consent.changeAccount" }),
           onPress: handleChangeAccount,
           loading: handleChangeAccountLoading,
           tabIndex: 3,
         },
-        ...(client.client_uri ? [
-          {
-            appearance: "ghost",
-            size: "small",
-            children: f({id: "consent.visitClientHomepage"}),
-            onPress: () => window.open(client.client_uri, "_blank"),
-            disabled: !client.client_uri,
-            tabIndex: 6,
-          },
-        ] : []),
-      ]}
-    >
-      <Persona {...user} style={{marginBottom: 30}}/>
+        ...(client.client_uri
+          ? [
+              {
+                appearance: "ghost",
+                size: "small",
+                children: f({ id: "consent.visitClientHomepage" }),
+                onPress: () => window.open(client.client_uri, "_blank"),
+                disabled: !client.client_uri,
+                tabIndex: 6,
+              },
+            ]
+          : []),
+      ]}>
+      <Persona {...user} style={{ marginBottom: 30 }} />
       <Text>
-        {f({id: "consent.givenScopesRequired"}, { scopes: scopes.new.concat(scopes.accepted).filter(scope => scope !== 'offline_access').map(scope => f({id: `consent.${scope}`})).join(", ")})}
+        {f(
+          { id: "consent.givenScopesRequired" },
+          {
+            scopes: scopes.new
+              .concat(scopes.accepted)
+              .filter((scope) => scope !== "offline_access")
+              .map((scope) => f({ id: `consent.${scope}` }))
+              .join(", "),
+          },
+        )}
       </Text>
     </ScreenLayout>
-  );
-};
+  )
+}
